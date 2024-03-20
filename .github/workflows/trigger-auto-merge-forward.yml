@@ -1,22 +1,21 @@
-name: Trigger Auto Merge Forward
-
-on:
-  push:
-    branches:
-      - '*.x'
-
-permissions: read-all
-
 jobs:
   trigger-worflow:
+    if: ${{ github.event.commits[0].author.username == 'dependabot[bot]' && github.repository
+      == 'spring-projects/spring-security-samples' }}
     name: Trigger Workflow
-    runs-on: ubuntu-latest
-    if: ${{ github.event.commits[0].author.username == 'dependabot[bot]' && github.repository == 'spring-projects/spring-security-samples' }}
+    runs-on: self-hosted
     steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-      - id: trigger
-        env:
-          GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
-        run: gh workflow run auto-merge-forward.yml -r main
+    - continue-on-error: true
+      id: checkout
+      name: Checkout
+      uses: actions/checkout@v4
+    - continue-on-error: true
+      env:
+        GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+      id: trigger
+      run: gh workflow run auto-merge-forward.yml -r main
+name: Trigger Auto Merge Forward
+on:
+  repository_dispatch:
+    types: trigger-ga___trigger-auto-merge-forward.yml
+permissions: read-all
